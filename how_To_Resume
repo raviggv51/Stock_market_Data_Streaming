@@ -1,0 +1,66 @@
+till I have reached a state where I can start brocker,producer,consumer
+and and jupytr notebook has the code to connect to kafka and be the end points of kafka
+one file as producer and other as kafka 
+how to start producer and consumer in my system
+------------------------------------------------------------------------------------
+
+In order to delete all the message that are present in kafkaesque run below command
+
+bin/kafka-storage.sh format \
+  --config config/server.properties \
+  --cluster-id $(bin/kafka-storage.sh random-uuid)
+
+------------------------------------------------------------------------------------
+
+<!-- Step 1: Start the Kafka broker (cluster manager) -->
+
+This must always be started first because producers and consumers rely on it.
+
+cd /path/to/kafka_2.13-4.1.0
+bin/kafka-server-start.sh config/server.properties
+
+Keep this tab running.
+
+The broker will read the previous logs in /tmp/kraft-combined-logs, so your topics and messages remain.
+-------------------------------------------------------------------------------------
+<!-- Step 2: Start a producer tab -->
+
+Open a new terminal tab and run:
+
+bin/kafka-console-producer.sh --topic test-topic --bootstrap-server localhost:9092
+
+You can now start sending messages again.
+
+This producer can resume sending to the same topic you used before.
+-------------------------------------------------------------------------------------
+<!-- Step 3: Start a consumer tab -->
+
+Open another terminal tab and run:
+
+bin/kafka-console-consumer.sh --topic test-topic --from-beginning --bootstrap-server localhost:9092
+
+
+The --from-beginning flag lets the consumer read all messages in the topic (including ones sent before the shutdown).
+
+If you only want new messages, you can omit --from-beginning.
+
+
+-------------------------------------------------------------------------------------
+
+
+
+the remaining part is to send the messaages from consumer to cloud storage(S3,Azure data lake,etc) to stimulate the real time data processing!
+
+Pushing message to azure storage container is done and next step will be performing query on top of that using azure synapse and Databricks
+ 
+
+
+there are three types in which I can perform streaming 
+1. Synapse using serverless pool
+2. databricks using streaming
+3. azure stream analytics
+
+and will do by all of these and will complete it today itselef and will make a post of it 
+and that a challenge to myself as I have been pushing this project for way long.
+
+

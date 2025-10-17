@@ -1,0 +1,50 @@
+-- reading all the records into the table
+
+SELECT
+    JSON_VALUE(jsonDoc, '$.Index')       AS [Index],
+    JSON_VALUE(jsonDoc, '$.Date')        AS [Date],
+    JSON_VALUE(jsonDoc, '$.Open')        AS [Open],
+    JSON_VALUE(jsonDoc, '$.High')        AS [High],
+    JSON_VALUE(jsonDoc, '$.Low')         AS [Low],
+    JSON_VALUE(jsonDoc, '$.Close')       AS [Close],
+    JSON_VALUE(jsonDoc, '$."Adj Close"') AS [Adj_Close],
+    JSON_VALUE(jsonDoc, '$.Volume')      AS [Volume],
+    JSON_VALUE(jsonDoc, '$.CloseUSD')    AS [CloseUSD]
+FROM OPENROWSET(
+    BULK 'https://ravi889893stream.dfs.core.windows.net/streamlake/raw/stream1/*.json',
+    FORMAT='CSV',
+    FIELDTERMINATOR='0x0b',  -- dummy separator (just to satisfy CSV parser)
+    FIELDQUOTE='0x0b',       -- disable quote parsing
+    ROWTERMINATOR = '0x0a'   -- new line
+) WITH (
+    jsonDoc NVARCHAR(MAX)    -- <== this defines schema for single text column
+) AS rows;
+
+
+-- counting records into the table 
+SELECT COUNT(*) AS total_records
+FROM OPENROWSET(
+    BULK 'https://ravi889893stream.dfs.core.windows.net/streamlake/raw/stream1/*.json',
+    FORMAT='CSV',
+    FIELDTERMINATOR='0x0b',  -- dummy separator
+    FIELDQUOTE='0x0b'
+) WITH (jsonDoc NVARCHAR(MAX)) AS data;
+
+-- aggregate all the records based on index
+SELECT
+    JSON_VALUE(jsonDoc, '$.Index') AS [Index],
+    SUM(CAST(JSON_VALUE(jsonDoc, '$.Open') AS FLOAT))       AS total_Open,
+    SUM(CAST(JSON_VALUE(jsonDoc, '$.High') AS FLOAT))       AS total_High,
+    SUM(CAST(JSON_VALUE(jsonDoc, '$.Low') AS FLOAT))        AS total_Low,
+    SUM(CAST(JSON_VALUE(jsonDoc, '$.Close') AS FLOAT))      AS total_Close,
+    SUM(CAST(JSON_VALUE(jsonDoc, '$."Adj Close"') AS FLOAT)) AS total_Adj_Close,
+    SUM(CAST(JSON_VALUE(jsonDoc, '$.Volume') AS FLOAT))     AS total_Volume,
+    SUM(CAST(JSON_VALUE(jsonDoc, '$.CloseUSD') AS FLOAT))   AS total_CloseUSD,
+    COUNT(*) AS record_count
+FROM OPENROWSET(
+    BULK 'https://ravi889893stream.dfs.core.windows.net/streamlake/raw/stream1/*.json',
+    FORMAT='CSV',
+    FIELDTERMINATOR='0x0b',  -- dummy separator
+    FIELDQUOTE='0x0b'
+) WITH (jsonDoc NVARCHAR(MAX)) AS data
+GROUP BY JSON_VALUE(jsonDoc, '$.Index');

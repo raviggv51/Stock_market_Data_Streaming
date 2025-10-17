@@ -1,0 +1,62 @@
+<!-- Challenges Faced & How They Were Resolved -->
+
+<!-- Java Version Error -->
+
+Error: UnsupportedClassVersionError because Kafka required Java 17.
+
+Resolution: Installed Java 17 and updated JAVA_HOME.
+
+<!-- KRaft Mode Confusion -->
+
+Could not find config/kraft/server.properties.
+
+Realized Kafka 4.x integrates cluster management; just use server.properties and set process.roles=broker,controller.
+
+<!-- Meta.properties Not Found -->
+
+Error: No readable meta.properties files found.
+
+Resolution: Formatted the storage directory using kafka-storage.sh format with server.properties.
+
+<!-- Consumer Logs About Joining/Leaving -->
+
+Saw logs about consumer groups joining, leaving, and rebalancing.
+
+Resolution: Understood these are normal Kafka operations for consumer group management.
+
+<!-- Jupyter Notebook Issues -->
+
+pip or python not found in notebook kernel.
+
+Resolution: Installed kafka-python using the notebook’s Python environment via:
+
+import sys
+!{sys.executable} -m pip install kafka-python
+
+
+<!-- Sending CSV Rows to Kafka -->
+
+Challenge: Converting DataFrame rows to JSON and sending them.
+
+Resolution: Used df.sample(n=1).to_dict(orient='records')[0] and json.dumps(), then sent using KafkaProducer with UTF-8 encoding.
+
+<!-- Sending Multiple Random Records -->
+
+Challenge: Automate sending multiple random records.
+
+Resolution: Built a while loop to send 100 random records to Kafka.
+
+
+---------------------------------------------------------------------
+
+✅ Outcome
+
+Fully functional Kafka cluster on Mac in KRaft mode.
+
+Successfully tested producer and consumer via CLI and Jupyter Notebook.
+
+Able to send CSV rows as JSON messages to Kafka.
+
+Learned safe shutdown/restart procedures and Kafka internal logs behavior.
+
+Prepared for future enhancements like multiple consumers or topics.
